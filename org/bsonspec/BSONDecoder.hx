@@ -56,7 +56,11 @@ class BSONDecoder
 				value = (input.readByte() == 1) ? true : false;
 				bytes += 1;
 			case 0x09: // utc datetime (int64)
-				value = Date.fromTime(input.readDouble());
+				//value = Date.fromTime(input.readDouble());
+				var timestamp:Int64 = readInt64(input);
+				
+				value = Date.fromTime( Std.parseFloat( Int64.toStr( timestamp ) ) );
+				
 				bytes += 8;
 			case 0x0A: // null
 				value = null;
@@ -137,8 +141,8 @@ class BSONDecoder
 
 	private inline function readInt64(input:Input):Int64
 	{
-		var high = input.readInt32();
 		var low = input.readInt32();
+		var high = input.readInt32();
 		return Int64.make(high, low);
 	}
 

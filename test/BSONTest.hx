@@ -58,6 +58,10 @@ class BSONTest extends TestCase
 		File.saveContent("test-doc.txt", doc.toString() );
 
 		var out:Dynamic = BSON.decode(File.read("test.bson", true));
+		
+		assertTrue( doc.exists( "_id" ));
+		assertTrue( doc.exists( "options/delay" ) );
+		
 	}
 
 }

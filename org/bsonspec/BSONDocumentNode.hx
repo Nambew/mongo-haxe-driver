@@ -14,4 +14,9 @@ class BSONDocumentNode {
 		key = k;
 		data = d;
 	}
+	
+	public function isDocument():Bool 
+	{
+		return Std.is( data, BSONDocument );
+	}
 }

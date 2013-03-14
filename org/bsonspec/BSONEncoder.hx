@@ -64,13 +64,22 @@ class BSONEncoder
 		else if (Std.is(value, Int64))
 		{
 			writeHeader(out, key, 0x12);
-			out.writeInt32(Int64.getHigh(value));
 			out.writeInt32(Int64.getLow(value));
+			out.writeInt32(Int64.getHigh(value));
+			
 		}
 		else if (Std.is(value, Date))
 		{
 			writeHeader(out, key, 0x09);
-			out.writeDouble(value.getTime());
+			
+			//var nombre:Int64 = Int64.make( Int32.ofInt( 136 ), Int32.ofInt( 1000000000 ) );
+			//nombre = Int64.add( nombre,  Int64.ofInt( 16 * 16 ) );
+			
+			var dateTime:Float = value.getTime();
+			var nombre:Int64 = floatToInt64( dateTime );
+			
+			out.writeInt32( Int64.getLow( nombre ) );
+			out.writeInt32( Int64.getHigh( nombre ) );
 		}
 		else if (Std.is(value, Array))
 		{
@@ -105,6 +114,25 @@ class BSONEncoder
 
 		return out.getBytes();
 	}
+	
+	private inline function floatToInt64( nombre:Float ):Int64 {
+		var monInt64:Int64 = Int64.ofInt( 0 );
+		
+		if ( nombre >= 1000000000 ) {
+			var chaine:String = Std.string( nombre );
+			var milliard:String = chaine.substring( 0, chaine.length - 9  );
+			var million:String = chaine.substr( -9 );
+			
+			monInt64 = Int64.ofInt( Std.parseInt( milliard ) );
+			monInt64 = Int64.mul( monInt64, Int64.ofInt( 1000000000 ) );
+			monInt64 = Int64.add( monInt64, Int64.ofInt( Std.parseInt( million ) ) );
+			
+		} else {
+			monInt64 = Int64.ofInt( Std.int( nombre ) );
+		}
+		
+		return monInt64;
+	}
 
 	private inline function writeString(out:BytesOutput, str:String)
 	{
@@ -119,6 +147,7 @@ class BSONEncoder
 		out.writeString(key);
 		out.writeByte(0x00); // terminator
 	}
+	
 
 	private function arrayToBytes(a:Array<Dynamic>):Bytes
 	{
